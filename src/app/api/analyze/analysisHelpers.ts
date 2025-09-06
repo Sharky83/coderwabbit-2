@@ -72,14 +72,36 @@ export async function installNpmDependencies(tempDir: string): Promise<{ error?:
 // Helper: Scan for secrets using detect-secrets
 export async function scanPythonSecrets(tempDir: string): Promise<{ status: string; output: string }> {
   try {
-    const result = await safeExec(
-      `${process.cwd()}/.venv/bin/detect-secrets scan --all-files --exclude .venv --exclude node_modules --exclude .next --exclude dist --exclude public --exclude repo-python-test --json`,
-      { cwd: tempDir }
-    );
+    const plugins = [
+      'AWSKeyDetector',
+      'AzureStorageKeyDetector',
+      'BasicAuthDetector',
+      'CloudantDetector',
+      'CreditCardDetector',
+      'DiscordBotTokenDetector',
+      'GCPServiceAccountKeyDetector',
+      'GenericCredentialDetector',
+      'GithubTokenDetector',
+      'GoogleApiKeyDetector',
+      'HerokuDetector',
+      'IBMCloudIamDetector',
+      'IbmCosHmacDetector',
+      'JWTKeyDetector',
+      'MailchimpDetector',
+      'PrivateKeyDetector',
+      'SlackDetector',
+      'SoftlayerDetector',
+      'SquareAccessTokenDetector',
+      'StripeDetector',
+      'TwilioKeyDetector'
+    ];
+    const pluginArgs = plugins.map(p => `--plugin ${p}`).join(' ');
+    const cmd = `${process.cwd()}/.venv/bin/detect-secrets scan --all-files ${pluginArgs} --exclude .venv --exclude node_modules --exclude .next --exclude dist --exclude public --exclude repo-python-test --json`;
+    const result = await safeExec(cmd, { cwd: tempDir });
     if (result.error) {
       return { status: 'error', output: String(result.error) };
     }
-  return { status: 'success', output: result.stdout || '' };
+    return { status: 'success', output: result.stdout || '' };
   } catch (err) {
     return { status: 'error', output: String(err) };
   }

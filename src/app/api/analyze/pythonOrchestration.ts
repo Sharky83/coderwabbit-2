@@ -27,6 +27,7 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
             pytest: { status: 'skipped', output: 'Pytest not run.' }
         };
     const { runVulture, analyzeMypy, runPylint, analyzePipAudit } = await import('./pythonHelpers');
+    const { scanPythonSecrets } = await import('./analysisHelpers');
     const pyFiles = require('fs').readdirSync(tempDir).filter((f: string) => f.endsWith('.py'));
     if (hasFeature(accountType, 'python', 'vulture')) {
         testResults.vulture = await runVulture(tempDir, pyFiles);
@@ -51,6 +52,8 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
     if (hasFeature(accountType, 'python', 'bandit')) {
         testResults.bandit = await runBandit(tempDir, pyFiles);
     }
+    // Always scan for secrets
+    testResults.detectSecrets = await scanPythonSecrets(tempDir);
     if (!hasFeature(accountType, 'python', 'pipAudit') && body.requestedStandardFeature) {
         return { error: featureErrorResponse(accountType, body.requestedStandardFeature, 'standard'), status: 403 };
     }

@@ -23,6 +23,36 @@ export default function RepoSelector() {
       output?: string;
     } | null;
   }
+
+    // Add Detect-Secrets results display
+  interface SecretsResultsProps {
+    detectSecrets?: {
+      status?: string;
+      output?: string;
+      error?: string;
+    } | null;
+  }
+  function SecretsResults({ detectSecrets }: SecretsResultsProps) {
+    if (!detectSecrets) return null;
+    return (
+      <section style={{ marginTop: '2rem' }}>
+        <h3>Secrets Detection (detect-secrets)</h3>
+        {detectSecrets.error ? (
+          <div style={{ color: 'orange', marginBottom: '1rem' }}>
+            <strong>Error running detect-secrets:</strong> {detectSecrets.error}
+          </div>
+        ) : null}
+        {detectSecrets.output ? (
+          <pre style={{ background: '#fffbe6', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#665c00' }}>{detectSecrets.output}</pre>
+        ) : (!detectSecrets.error ? (
+          <div style={{ color: 'green', marginTop: '1rem' }}>
+            No secrets found by detect-secrets.
+          </div>
+        ) : null)}
+      </section>
+    );
+  }
+
   function ComplexitySummarySection({ complexitySummary }: ComplexitySummaryProps) {
     if (!complexitySummary) return null;
     return (
@@ -576,6 +606,7 @@ export default function RepoSelector() {
             </pre>
           )}
           {result?.complexitySummary && <ComplexitySummarySection complexitySummary={result.complexitySummary as ComplexitySummaryProps['complexitySummary']} />}
+          {result?.testResults?.detectSecrets && <SecretsResults detectSecrets={result.testResults.detectSecrets as SecretsResultsProps['detectSecrets']} />}
           {result?.testResults?.safety && <SafetyResults safety={result.testResults.safety as SafetyResultsProps['safety']} />}
           {result?.testResults?.mypy && <MypyResults mypy={result.testResults.mypy as MypyResultsProps['mypy']} />}
           {result?.testResults?.bandit && <BanditResults bandit={result.testResults.bandit as BanditResultsProps['bandit']} />}
