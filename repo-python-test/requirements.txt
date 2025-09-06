@@ -1,0 +1,7 @@
+# Known vulnerable packages for pip-audit testing
+flask==0.5
+django==1.2
+cryptography==2.1.4
+jinja2==2.7.2
+urllib3==1.25.2
+insecure-package==0.1.0

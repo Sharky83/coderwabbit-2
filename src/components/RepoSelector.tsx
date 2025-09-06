@@ -35,13 +35,28 @@ type Repo = {
           const status = (result as any)?.status;
           const error = (result as any)?.error;
           const output = (result as any)?.output;
-          // Try to parse output for vulnerabilities
-          let issues: any[] = [];
+          const rawOutput = (result as any)?.rawOutput;
+          const rawError = (result as any)?.rawError;
+          // Human-readable summary list
+          let summary: any[] = [];
           try {
             if (output && typeof output === 'string') {
               const parsed = JSON.parse(output);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                issues = parsed;
+              // pip-audit >= 2.x returns { dependencies: [...] }
+              if (parsed && parsed.dependencies && Array.isArray(parsed.dependencies)) {
+                summary = parsed.dependencies.flatMap((dep: any) => {
+                  if (dep.vulns && dep.vulns.length > 0) {
+                    return dep.vulns.map((vuln: any) => ({
+                      name: dep.name,
+                      version: dep.version,
+                      vulnId: vuln.id,
+                      description: vuln.description,
+                      fixVersions: vuln.fix_versions,
+                      aliases: vuln.aliases
+                    }));
+                  }
+                  return [];
+                });
               }
             }
           } catch {}
@@ -53,25 +68,42 @@ type Repo = {
                   <strong>{status === 'skipped' ? 'Skipped:' : 'Error:'}</strong> {error}
                 </div>
               ) : null}
-              {issues.length > 0 ? (
+              {summary.length > 0 ? (
                 <ul style={{ color: '#b30000', margin: '0.5rem 0 0 1rem' }}>
-                  {issues.map((issue, idx) => (
+                  {summary.map((item, idx) => (
                     <li key={idx}>
-                      <strong>{issue.dependency || issue.name}</strong>: {issue.vulnerability_id || issue.id} - {issue.description || issue.summary}
+                      <strong>{item.name}</strong> <span style={{ color: '#555' }}>({item.version})</span>: <span style={{ fontWeight: 500 }}>{item.vulnId}</span><br />
+                      <span style={{ fontSize: '0.95em' }}>{item.description}</span>
+                      {item.fixVersions && item.fixVersions.length > 0 && (
+                        <div style={{ color: '#007700', fontSize: '0.92em', marginTop: '0.2em' }}>Fixed in: {item.fixVersions.join(', ')}</div>
+                      )}
+                      {item.aliases && item.aliases.length > 0 && (
+                        <div style={{ color: '#888', fontSize: '0.9em' }}>Aliases: {item.aliases.join(', ')}</div>
+                      )}
                     </li>
                   ))}
                 </ul>
               ) : (status === 'success' && !error ? (
                 <div style={{ color: 'green', marginBottom: '0.3rem' }}>No vulnerabilities found.</div>
               ) : null)}
-              {/* Debug: Show raw output and error */}
-              {output ? (
+              {/* Debug: Show raw output and error from backend */}
+              {rawOutput ? (
+                <details style={{ marginTop: '0.5rem', background: '#f8f8f8', padding: '0.5rem', borderRadius: '4px', fontSize: '0.9rem' }}>
+                  <summary>Raw pip-audit output (backend)</summary>
+                  <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{rawOutput}</pre>
+                </details>
+              ) : output ? (
                 <details style={{ marginTop: '0.5rem', background: '#f8f8f8', padding: '0.5rem', borderRadius: '4px', fontSize: '0.9rem' }}>
                   <summary>Raw pip-audit output</summary>
                   <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{output}</pre>
                 </details>
               ) : null}
-              {error && typeof error === 'string' && error.includes('pip-audit') ? (
+              {rawError ? (
+                <details style={{ marginTop: '0.5rem', background: '#fff3cd', padding: '0.5rem', borderRadius: '4px', fontSize: '0.9rem' }}>
+                  <summary>Raw pip-audit error (backend)</summary>
+                  <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{rawError}</pre>
+                </details>
+              ) : error && typeof error === 'string' && error.includes('pip-audit') ? (
                 <details style={{ marginTop: '0.5rem', background: '#fff3cd', padding: '0.5rem', borderRadius: '4px', fontSize: '0.9rem' }}>
                   <summary>Raw pip-audit error</summary>
                   <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{error}</pre>
