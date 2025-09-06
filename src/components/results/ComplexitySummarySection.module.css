@@ -1,0 +1,41 @@
+.container {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.title {
+  margin-bottom: 1rem;
+}
+.error {
+  color: orange;
+  margin-bottom: 1rem;
+}
+.info {
+  color: #005580;
+  margin-bottom: 1rem;
+}
+.complexList {
+  margin-top: 1rem;
+}
+.skipped {
+  margin-top: 1rem;
+  color: #b30000;
+}
+.output {
+  background: #e6f7ff;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  color: #005580;
+}
+.noData {
+  background: #e6f7ff;
+  color: #005580;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}

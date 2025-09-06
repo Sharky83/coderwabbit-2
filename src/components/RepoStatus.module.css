@@ -1,0 +1,6 @@
+.status {
+  min-height: 2rem;
+  font-size: 0.95rem;
+  color: #222;
+  white-space: pre-line;
+}
