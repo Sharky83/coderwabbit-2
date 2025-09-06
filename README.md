@@ -11,12 +11,16 @@ coderwabbit is a web app that automatically reviews and analyses GitHub reposito
 - Security checks and recommendations
 - Simple dashboard for results
 
+
 ## Workflow
 
-1. Log in with GitHub
+1. Log in with GitHub (token is securely stored in sessionStorage for API authentication)
 2. Select a repository to analyse
-3. The app pulls repo details and prepares for code review and security analysis
-4. View results and suggestions in the dashboard
+3. Click **Check** to prepare the repository for analysis
+4. Once ready, click **Analyse** to run code review and security checks
+	- The Analyse button is disabled until the repo is checked and results are cleared
+5. View results and suggestions in the dashboard
+6. Robust error handling and secure API requests using your GitHub token
 
 ## Focus
 
