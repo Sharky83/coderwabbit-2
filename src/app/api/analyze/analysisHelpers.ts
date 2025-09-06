@@ -99,9 +99,15 @@ export async function scanPythonSecrets(tempDir: string): Promise<{ status: stri
     const cmd = `${process.cwd()}/.venv/bin/detect-secrets scan --all-files ${pluginArgs} --exclude .venv --exclude node_modules --exclude .next --exclude dist --exclude public --exclude repo-python-test --json`;
     const result = await safeExec(cmd, { cwd: tempDir });
     if (result.error) {
+      if (String(result.error).includes('No such file or directory') || String(result.error).includes('cannot execute')) {
+        return { status: 'error', output: 'detect-secrets is not installed or the Python environment is misconfigured. Please check your .venv setup.' };
+      }
       return { status: 'error', output: String(result.error) };
     }
-    return { status: 'success', output: result.stdout || '' };
+    if (!result.stdout || result.stdout.trim() === '' || result.stdout.trim() === '{}') {
+      return { status: 'success', output: 'No secrets detected in this repository.' };
+    }
+    return { status: 'success', output: result.stdout };
   } catch (err) {
     return { status: 'error', output: String(err) };
   }

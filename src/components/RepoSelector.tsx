@@ -18,7 +18,7 @@ type Repo = {
     // Single error case
     if ('status' in pipAudit && pipAudit.status === 'error') {
       return (
-        <section style={{ marginTop: '2rem' }}>
+  <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
           <h3>Dependency Security (PipAudit)</h3>
           <div style={{ color: 'orange', marginBottom: '1rem' }}>
             <strong>Error running pip-audit:</strong> {typeof pipAudit.error === 'string' ? pipAudit.error : ''}
@@ -28,7 +28,7 @@ type Repo = {
     }
     // Multiple files case
     return (
-      <section style={{ marginTop: '2rem' }}>
+  <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
         <h3>Dependency Security (PipAudit)</h3>
         {Object.entries(pipAudit).map(([file, result], idx) => (
           <div key={file} style={{ marginBottom: '1.5rem' }}>
@@ -74,15 +74,28 @@ export default function RepoSelector() {
   function SecretsResults({ detectSecrets }: SecretsResultsProps) {
     if (!detectSecrets) return null;
     return (
-      <section style={{ marginTop: '2rem' }}>
+  <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
         <h3>Secrets Detection (detect-secrets)</h3>
         {detectSecrets.error ? (
-          <div style={{ color: 'orange', marginBottom: '1rem' }}>
+          <div style={{
+            color: 'orange',
+            background: '#fff3cd',
+            padding: '0.75rem',
+            borderRadius: '6px',
+            marginBottom: '1rem',
+            width: '100%',
+            maxWidth: '700px',
+            boxSizing: 'border-box',
+            wordBreak: 'break-word',
+            whiteSpace: 'pre-line',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}>
             <strong>Error running detect-secrets:</strong> {detectSecrets.error}
           </div>
         ) : null}
         {detectSecrets.output ? (
-          <pre style={{ background: '#fffbe6', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#665c00' }}>{detectSecrets.output}</pre>
+          <pre style={{ background: '#fffbe6', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#665c00', width: '100%', wordBreak: 'break-word', whiteSpace: 'pre-line' }}>{detectSecrets.output}</pre>
         ) : (!detectSecrets.error ? (
           <div style={{ color: 'green', marginTop: '1rem' }}>
             No secrets found by detect-secrets.
@@ -104,7 +117,7 @@ export default function RepoSelector() {
       complexitySummary.output
     );
     return (
-      <section style={{ marginTop: '2rem' }}>
+  <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
         <h3 style={{ marginBottom: '1rem' }}>Code Complexity Summary</h3>
         {!hasSummary && (
           <div style={{ background: '#e6f7ff', color: '#005580', marginBottom: '1rem', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem' }}>
@@ -169,18 +182,20 @@ export default function RepoSelector() {
   }
   function PylintResults({ pylint }: PylintResultsProps) {
     if (!pylint) return null;
+    const improvedMsg = 'pylint is not installed or the Python environment is misconfigured. Please check your .venv setup.';
+    const showImprovedError = pylint.output && typeof pylint.output === 'string' && pylint.output.includes('pylint is not installed');
     return (
-      <section style={{ marginTop: '2rem' }}>
+  <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
         <h3>Linting (Pylint)</h3>
-        {pylint.error ? (
-          <div style={{ color: 'orange', marginBottom: '1rem' }}>
-            <strong>Error running Pylint:</strong> {typeof pylint.error === 'string' ? pylint.error : pylint.error.message}
+        {(pylint.error || showImprovedError) ? (
+          <div style={{ color: 'orange', background: '#fff3cd', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem' }}>
+            <strong>Error running Pylint:</strong> {showImprovedError ? pylint.output : (typeof pylint.error === 'string' ? pylint.error : pylint.error?.message)}
             {(pylint.details && (typeof pylint.details === 'object' || typeof pylint.details === 'string')) ? (
               <pre style={{ background: '#fff3cd', padding: '0.5rem', borderRadius: '4px', fontSize: '0.85rem', marginTop: '0.5rem' }}>{JSON.stringify(pylint.details, null, 2)}</pre>
             ) : null}
           </div>
         ) : null}
-        {pylint.output ? (
+        {pylint.output && !showImprovedError ? (
           <pre style={{ background: '#f7f7ff', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#333' }}>{pylint.output}</pre>
         ) : (!pylint.error && pylint.message ? (
           <div style={{ color: 'green', marginTop: '1rem' }}>{pylint.message}</div>
@@ -394,18 +409,20 @@ export default function RepoSelector() {
   }
   function MypyResults({ mypy }: MypyResultsProps) {
     if (!mypy) return null;
+    const improvedMsg = 'mypy is not installed or the Python environment is misconfigured. Please check your .venv setup.';
+    const showImprovedError = mypy.output && typeof mypy.output === 'string' && mypy.output.includes('mypy is not installed');
     return (
-      <section style={{ marginTop: '2rem' }}>
+  <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
         <h3>Type Checking (mypy)</h3>
-        {mypy.error ? (
-          <div style={{ color: 'orange', marginBottom: '1rem' }}>
-            <strong>Error running mypy:</strong> {typeof mypy.error === 'string' ? mypy.error : mypy.error.message}
+        {(mypy.error || showImprovedError) ? (
+          <div style={{ color: 'orange', background: '#fff3cd', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem' }}>
+            <strong>Error running mypy:</strong> {showImprovedError ? mypy.output : (typeof mypy.error === 'string' ? mypy.error : mypy.error?.message)}
             {(mypy.details && (typeof mypy.details === 'object' || typeof mypy.details === 'string')) ? (
               <pre style={{ background: '#fff3cd', padding: '0.5rem', borderRadius: '4px', fontSize: '0.85rem', marginTop: '0.5rem' }}>{JSON.stringify(mypy.details, null, 2)}</pre>
             ) : null}
           </div>
         ) : null}
-        {mypy.output ? (
+        {mypy.output && !showImprovedError ? (
           <pre style={{ background: '#e6f7ff', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#005580' }}>{mypy.output}</pre>
         ) : (!mypy.error ? (
           <div style={{ color: 'green', marginTop: '1rem' }}>
@@ -427,18 +444,20 @@ export default function RepoSelector() {
   }
   function VultureResults({ vulture }: VultureResultsProps) {
     if (!vulture) return null;
+    const improvedMsg = 'vulture is not installed or the Python environment is misconfigured. Please check your .venv setup.';
+    const showImprovedError = vulture.output && typeof vulture.output === 'string' && vulture.output.includes('vulture is not installed');
     return (
-      <section style={{ marginTop: '2rem' }}>
+  <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
         <h3>Unused Code (Vulture)</h3>
-        {vulture.error ? (
-          <div style={{ color: 'orange', marginBottom: '1rem' }}>
-            <strong>Error running Vulture:</strong> {typeof vulture.error === 'string' ? vulture.error : vulture.error.message}
+        {(vulture.error || showImprovedError) ? (
+          <div style={{ color: 'orange', background: '#fff3cd', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem' }}>
+            <strong>Error running Vulture:</strong> {showImprovedError ? vulture.output : (typeof vulture.error === 'string' ? vulture.error : vulture.error?.message)}
             {(vulture.details && (typeof vulture.details === 'object' || typeof vulture.details === 'string')) ? (
               <pre style={{ background: '#fff3cd', padding: '0.5rem', borderRadius: '4px', fontSize: '0.85rem', marginTop: '0.5rem' }}>{JSON.stringify(vulture.details, null, 2)}</pre>
             ) : null}
           </div>
         ) : null}
-        {vulture.output ? (
+        {vulture.output && !showImprovedError ? (
           <pre style={{ background: '#ffecec', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#b30000' }}>{vulture.output}</pre>
         ) : (!vulture.error && vulture.message ? (
           <div style={{ color: 'green', marginTop: '1rem' }}>{vulture.message}</div>
@@ -664,11 +683,83 @@ export default function RepoSelector() {
           {result?.testResults?.pytest && <PytestResults pytest={result.testResults.pytest as PytestResultsProps['pytest']} />}
           {result?.testResults?.installErrors && <InstallErrors installErrors={result.testResults.installErrors as unknown[]} />}
           {result && (
-            <section style={{ marginTop: "2rem" }}>
+            <section style={{ marginTop: "2rem", width: "100%", maxWidth: "700px", marginLeft: "auto", marginRight: "auto" }}>
               <h3 style={{ marginBottom: "1rem" }}>Full Analysis Summary</h3>
-              <pre style={{ background: "#f8f8f8", padding: "1rem", borderRadius: "6px", fontSize: "0.9rem", overflowX: "auto" }}>
-                {JSON.stringify(result, null, 2)}
-              </pre>
+              <div style={{ background: "#f8f8f8", padding: "1rem", borderRadius: "6px", fontSize: "1rem", lineHeight: 1.7 }}>
+                {result?.testResults ? (
+                  <>
+                    {Object.entries(result.testResults).map(([tool, res]) => {
+                      if (!res) return null;
+                      // Special handling for pipAudit multi-file results
+                      if (tool === 'pipAudit' && typeof res === 'object' && !Array.isArray(res)) {
+                        return (
+                          <div key={tool} style={{ marginBottom: '1.2rem' }}>
+                            <strong>Dependency Security (pip-audit):</strong>
+                            {Object.entries(res).map(([file, audit]) => {
+                              if (!audit) return null;
+                              const status = (audit as any)?.status;
+                              const error = (audit as any)?.error;
+                              const output = (audit as any)?.output;
+                              // Try to parse output for vulnerabilities
+                              let issues: any[] = [];
+                              try {
+                                if (output && typeof output === 'string') {
+                                  const parsed = JSON.parse(output);
+                                  if (Array.isArray(parsed) && parsed.length > 0) {
+                                    issues = parsed;
+                                  }
+                                }
+                              } catch {}
+                              return (
+                                <div key={file} style={{ margin: '0.5rem 0 1rem 1rem' }}>
+                                  <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.3rem' }}>{file}</div>
+                                  {error ? (
+                                    <div style={{ color: 'orange', marginBottom: '0.3rem' }}>Error: {typeof error === 'string' ? error : error.message}</div>
+                                  ) : null}
+                                  {status === 'skipped' ? (
+                                    <div style={{ color: 'gray', marginBottom: '0.3rem' }}>Skipped: {error}</div>
+                                  ) : null}
+                                  {issues.length > 0 ? (
+                                    <ul style={{ color: '#b30000', margin: '0.5rem 0 0 1rem' }}>
+                                      {issues.map((issue, idx) => (
+                                        <li key={idx}>
+                                          <strong>{issue.dependency || issue.name}</strong>: {issue.vulnerability_id || issue.id} - {issue.description || issue.summary}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ) : (status === 'success' && !error ? (
+                                    <div style={{ color: 'green', marginBottom: '0.3rem' }}>No vulnerabilities found.</div>
+                                  ) : null)}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      }
+                      // Default for other tools
+                      const status = (res as any)?.status || (res as any)?.output || (res as any)?.error || (res as any)?.message || '';
+                      const error = (res as any)?.error || '';
+                      const output = (res as any)?.output || '';
+                      return (
+                        <div key={tool} style={{ marginBottom: '1.2rem' }}>
+                          <strong style={{ textTransform: 'capitalize' }}>{tool.replace(/([A-Z])/g, ' $1')}</strong>:
+                          {error ? (
+                            <div style={{ color: 'orange', marginTop: '0.3rem' }}>Error: {typeof error === 'string' ? error : error.message}</div>
+                          ) : null}
+                          {output && !error ? (
+                            <div style={{ color: '#222', marginTop: '0.3rem' }}>{output}</div>
+                          ) : null}
+                          {status && !output && !error ? (
+                            <div style={{ color: '#222', marginTop: '0.3rem' }}>{status}</div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </>
+                ) : (
+                  <div>No analysis results found.</div>
+                )}
+              </div>
             </section>
           )}
         </>
