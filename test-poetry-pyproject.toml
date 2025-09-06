@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "audit-test"
+version = "0.1.0"
+description = "Poetry test project for dependency audit"
+authors = ["Test User <test@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "2.31.0"
+flask = "3.0.3"
+pyjwt = "2.8.0"
+# Add a known vulnerable package for testing
+insecure-package = "0.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

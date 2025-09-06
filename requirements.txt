@@ -9,9 +9,12 @@ mypy
 vulture
 mccabe==0.7.0
 
+
 # Security
 bandit
 detect-secrets
+pip-audit
+safety
 
 # Utilities
 colorama==0.4.6
