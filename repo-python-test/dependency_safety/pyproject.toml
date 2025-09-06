@@ -1,0 +1,7 @@
+[project]
+name = "safety-toml-test"
+version = "0.1.0"
+description = "Test project for Safety TOML vulnerability detection"
+dependencies = [
+	"requests==2.19.0"
+]

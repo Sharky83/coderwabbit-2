@@ -1,0 +1,27 @@
+# Vulnerability fix
+zipp==3.19.1
+
+# Linters & Type Checkers
+pycodestyle==2.14.0
+pyflakes==3.4.0
+pylint
+mypy
+vulture
+mccabe==0.7.0
+
+# Security
+bandit
+detect-secrets
+
+# Utilities
+colorama==0.4.6
+iniconfig==2.1.0
+mando==0.7.1
+packaging==25.0
+pluggy==1.6.0
+pygments==2.19.2
+six==1.17.0
+
+# Testing & Analysis
+pytest==8.4.1
+radon==6.0.1

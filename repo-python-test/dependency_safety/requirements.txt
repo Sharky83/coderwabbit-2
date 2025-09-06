@@ -1,0 +1,3 @@
+# safety_test_requirements.txt
+# This requirements file contains a known vulnerable package for testing Safety
+requests==2.19.0

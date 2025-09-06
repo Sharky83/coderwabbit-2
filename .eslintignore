@@ -1,0 +1,6 @@
+# Ignore build and output folders
+.next/
+node_modules/
+dist/
+public/
+repo-python-test/
