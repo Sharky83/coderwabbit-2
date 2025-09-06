@@ -18,7 +18,7 @@ type Repo = {
     // Single error case
     if ('status' in pipAudit && pipAudit.status === 'error') {
       return (
-  <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
+        <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
           <h3>Dependency Security (PipAudit)</h3>
           <div style={{ color: 'orange', marginBottom: '1rem' }}>
             <strong>Error running pip-audit:</strong> {typeof pipAudit.error === 'string' ? pipAudit.error : ''}
@@ -28,21 +28,58 @@ type Repo = {
     }
     // Multiple files case
     return (
-  <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
+      <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
         <h3>Dependency Security (PipAudit)</h3>
-        {Object.entries(pipAudit).map(([file, result], idx) => (
-          <div key={file} style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.5rem' }}>{file}</div>
-            {result.status === 'error' || result.status === 'skipped' ? (
-              <div style={{ color: 'orange', marginBottom: '0.5rem' }}>
-                <strong>{result.status === 'skipped' ? 'Skipped:' : 'Error:'}</strong> {result.error}
-              </div>
-            ) : null}
-            {result.output ? (
-              <pre style={{ background: '#e6ffe6', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', color: '#005500' }}>{result.output}</pre>
-            ) : null}
-          </div>
-        ))}
+        {Object.entries(pipAudit).map(([file, result], idx) => {
+          if (!result) return null;
+          const status = (result as any)?.status;
+          const error = (result as any)?.error;
+          const output = (result as any)?.output;
+          // Try to parse output for vulnerabilities
+          let issues: any[] = [];
+          try {
+            if (output && typeof output === 'string') {
+              const parsed = JSON.parse(output);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                issues = parsed;
+              }
+            }
+          } catch {}
+          return (
+            <div key={file} style={{ marginBottom: '1.5rem' }}>
+              <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.5rem' }}>{file}</div>
+              {error ? (
+                <div style={{ color: 'orange', marginBottom: '0.5rem' }}>
+                  <strong>{status === 'skipped' ? 'Skipped:' : 'Error:'}</strong> {error}
+                </div>
+              ) : null}
+              {issues.length > 0 ? (
+                <ul style={{ color: '#b30000', margin: '0.5rem 0 0 1rem' }}>
+                  {issues.map((issue, idx) => (
+                    <li key={idx}>
+                      <strong>{issue.dependency || issue.name}</strong>: {issue.vulnerability_id || issue.id} - {issue.description || issue.summary}
+                    </li>
+                  ))}
+                </ul>
+              ) : (status === 'success' && !error ? (
+                <div style={{ color: 'green', marginBottom: '0.3rem' }}>No vulnerabilities found.</div>
+              ) : null)}
+              {/* Debug: Show raw output and error */}
+              {output ? (
+                <details style={{ marginTop: '0.5rem', background: '#f8f8f8', padding: '0.5rem', borderRadius: '4px', fontSize: '0.9rem' }}>
+                  <summary>Raw pip-audit output</summary>
+                  <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{output}</pre>
+                </details>
+              ) : null}
+              {error && typeof error === 'string' && error.includes('pip-audit') ? (
+                <details style={{ marginTop: '0.5rem', background: '#fff3cd', padding: '0.5rem', borderRadius: '4px', fontSize: '0.9rem' }}>
+                  <summary>Raw pip-audit error</summary>
+                  <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{error}</pre>
+                </details>
+              ) : null}
+            </div>
+          );
+        })}
       </section>
     );
   }

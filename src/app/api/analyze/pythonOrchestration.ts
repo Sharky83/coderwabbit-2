@@ -38,24 +38,51 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
     if (hasFeature(accountType, 'python', 'pylint')) {
         testResults.pylint = await runPylint(tempDir, pyFiles);
     }
-    if (hasFeature(accountType, 'python', 'pipAudit')) {
-        const depFiles = require('fs').readdirSync(tempDir).filter((f: string) => f.endsWith('requirements.txt') || f.endsWith('pyproject.toml') || f.endsWith('environment.yml'));
-        if (depFiles.length === 0) {
-            testResults.pipAudit = { status: 'error', error: 'No dependency file found.' };
-        } else {
-            // Ensure pipAudit is an object for multiple results
-            testResults.pipAudit = Object.create(null);
-            for (const depFile of depFiles) {
-                // Only run pip-audit for supported file types
-                if (depFile.endsWith('requirements.txt') || depFile.endsWith('pyproject.toml')) {
-                    const auditResult = await analyzePipAudit(tempDir, `${tempDir}/${depFile}`);
-                    (testResults.pipAudit as Record<string, unknown>)[depFile] = auditResult;
+        if (hasFeature(accountType, 'python', 'pipAudit')) {
+                const fs = require('fs');
+                const depFiles = fs.readdirSync(tempDir).filter((f: string) => f.endsWith('requirements.txt') || f.endsWith('pyproject.toml') || f.endsWith('environment.yml'));
+                if (depFiles.length === 0) {
+                        testResults.pipAudit = { status: 'error', error: 'No dependency file found in repo.' };
                 } else {
-                    (testResults.pipAudit as Record<string, unknown>)[depFile] = { status: 'skipped', error: 'File type not supported by pip-audit.' };
+                        testResults.pipAudit = Object.create(null);
+                        for (const depFile of depFiles) {
+                                const fullPath = `${tempDir}/${depFile}`;
+                                // Check file existence and log contents for debugging
+                                let fileExists = false;
+                                let fileContents = '';
+                                try {
+                                    fileExists = fs.existsSync(fullPath);
+                                    if (fileExists) fileContents = fs.readFileSync(fullPath, 'utf8');
+                                } catch (e) {
+                                    (testResults.pipAudit as Record<string, unknown>)[depFile] = { status: 'error', error: `Could not read file: ${e}` };
+                                    continue;
+                                }
+                                if (!fileExists) {
+                                    (testResults.pipAudit as Record<string, unknown>)[depFile] = { status: 'error', error: 'Dependency file missing after repo download.' };
+                                    continue;
+                                }
+                                // Only run pip-audit for supported file types
+                                if (depFile.endsWith('requirements.txt') || depFile.endsWith('pyproject.toml')) {
+                                        const auditResult = await analyzePipAudit(tempDir, fullPath);
+                                        // Attach file contents for debugging if no vulnerabilities found
+                                        if (auditResult.status === 'success' && auditResult.output && auditResult.output.trim() === 'No vulnerabilities found.') {
+                                            (auditResult as any).fileContents = fileContents;
+                                        }
+                                        // If output is empty or not valid JSON, log for debugging
+                                        try {
+                                            if (auditResult.output && auditResult.output.trim() && auditResult.output.trim() !== 'No vulnerabilities found.') {
+                                                JSON.parse(auditResult.output);
+                                            }
+                                        } catch (e) {
+                                            auditResult.error = `pip-audit output not valid JSON: ${e}`;
+                                        }
+                                        (testResults.pipAudit as Record<string, unknown>)[depFile] = auditResult;
+                                } else {
+                                        (testResults.pipAudit as Record<string, unknown>)[depFile] = { status: 'skipped', error: 'File type not supported by pip-audit.' };
+                                }
+                        }
                 }
-            }
         }
-    }
     if (hasFeature(accountType, 'python', 'pytest')) {
         const pythonSetup = await setupPythonEnv(tempDir);
         if (pythonSetup.installErrors.length > 0) {
