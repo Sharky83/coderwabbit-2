@@ -19,7 +19,7 @@ export function SafetyResults({ safety }: SafetyResultsProps) {
   if (!safety) return null;
   return (
     <section className={"container"}>
-      <h3>Dependency Security (Safety)</h3>
+  <h3 className={styles.title}>Dependency Security (Safety)</h3>
       {safety.error ? (
         <ErrorMessage>
           <strong>Error running safety:</strong> {typeof safety.error === 'string' ? safety.error : (safety.error as any)?.message}

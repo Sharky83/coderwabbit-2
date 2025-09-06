@@ -15,7 +15,7 @@ export function MypyResults({ mypy }: MypyResultsProps) {
   const showImprovedError = mypy.output && typeof mypy.output === 'string' && mypy.output.includes('mypy is not installed');
   return (
     <section className={"container"}>
-      <h3>Type Checking (mypy)</h3>
+  <h3 className={"title"}>Type Checking (mypy)</h3>
       {(mypy.error || showImprovedError) ? (
         <div className={"error"}>
           <strong>Error running mypy:</strong> {showImprovedError ? mypy.output : (typeof mypy.error === 'string' ? mypy.error : (mypy.error as any)?.message)}

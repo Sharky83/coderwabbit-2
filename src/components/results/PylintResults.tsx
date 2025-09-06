@@ -16,7 +16,7 @@ export function PylintResults({ pylint }: PylintResultsProps) {
   const showImprovedError = pylint.output && typeof pylint.output === 'string' && pylint.output.includes('pylint is not installed');
   return (
     <section className={"container"}>
-      <h3>Linting (Pylint)</h3>
+  <h3 className={"title"}>Linting (Pylint)</h3>
       {(pylint.error || showImprovedError) ? (
         <ErrorMessage>
           <strong>Error running Pylint:</strong> {showImprovedError ? pylint.output : (typeof pylint.error === 'string' ? pylint.error : (pylint.error as any)?.message)}

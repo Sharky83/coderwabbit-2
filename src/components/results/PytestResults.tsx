@@ -14,7 +14,7 @@ export function PytestResults({ pytest }: PytestResultsProps) {
   if (!pytest) return null;
   return (
     <section className={"container"}>
-      <h3>Test Results (Pytest)</h3>
+  <h3 className={"title"}>Test Results (Pytest)</h3>
       {pytest.error ? (
         <div className={"error"}>
           <strong>Error running Pytest:</strong> {typeof pytest.error === 'string' ? pytest.error : (pytest.error as any)?.message}

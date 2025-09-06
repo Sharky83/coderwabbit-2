@@ -14,7 +14,7 @@ export function BanditResults({ bandit }: BanditResultsProps) {
   if (bandit.status === "error") {
     return (
       <section className={styles.container}>
-        <h3>Security Analysis (Bandit)</h3>
+        <h3 className={styles.title}>Security Analysis (Bandit)</h3>
         <div className={styles.error}>
           <strong>Error running Bandit:</strong> {bandit.error}
         </div>
@@ -24,7 +24,7 @@ export function BanditResults({ bandit }: BanditResultsProps) {
   if (bandit.output) {
     return (
       <section className={styles.container}>
-        <h3>Security Analysis (Bandit)</h3>
+        <h3 className={styles.title}>Security Analysis (Bandit)</h3>
         <pre className={styles.output}>{bandit.output}</pre>
       </section>
     );

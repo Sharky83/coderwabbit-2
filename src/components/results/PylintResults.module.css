@@ -1,3 +1,4 @@
+
 .container {
   margin-top: 2rem;
   width: 100%;
@@ -5,14 +6,33 @@
   margin-left: auto;
   margin-right: auto;
 }
-.error {
-  color: orange;
+.title {
+  font-size: 1.15rem;
+  font-weight: 600;
   margin-bottom: 1rem;
 }
+.error {
+  background: #fffbe6;
+  color: #b30000;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+.success {
+  background: #e6ffe6;
+  color: #005500;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
 .output {
-  background: #f6f8fa;
+  background: #e6f7ff;
+  color: #005580;
   padding: 1rem;
   border-radius: 6px;
   font-size: 0.97em;
   overflow-x: auto;
+  margin-bottom: 1rem;
 }

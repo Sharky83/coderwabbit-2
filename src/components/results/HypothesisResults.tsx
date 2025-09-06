@@ -30,7 +30,7 @@ export function HypothesisResults({ repoName, accessToken }: HypothesisResultsPr
 
   return (
     <section>
-      <h3>Hypothesis Test Results</h3>
+  <h3 className={styles.title}>Hypothesis Test Results</h3>
       {error && <div style={{ color: 'red' }}>{error}</div>}
       {results ? (
         <pre style={{ background: '#e6f7ff', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#005580' }}>{JSON.stringify(results, null, 2)}</pre>

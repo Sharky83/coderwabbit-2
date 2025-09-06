@@ -27,7 +27,7 @@ export function ComplexitySummarySection({ complexitySummary }: ComplexitySummar
   );
   return (
     <section className={styles.container}>
-      <h3 className={styles.title}>Code Complexity Summary</h3>
+  <h3 className={styles.title}>Code Complexity Summary</h3>
       {!hasSummary && (
         <div className={styles.noData}>
           No complexity data available for this repository.

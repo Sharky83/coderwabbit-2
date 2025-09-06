@@ -14,7 +14,7 @@ export function PoetryResults({ poetry }: PoetryResultsProps) {
   if (poetry.status === "error") {
     return (
       <section className={styles.container}>
-        <h3>Dependency Management (Poetry)</h3>
+        <h3 className={styles.title}>Dependency Management (Poetry)</h3>
         <div className={styles.error}>
           <strong>Error running Poetry:</strong> {poetry.error}
         </div>
@@ -24,7 +24,7 @@ export function PoetryResults({ poetry }: PoetryResultsProps) {
   if (poetry.output) {
     return (
       <section className={styles.container}>
-        <h3>Dependency Management (Poetry)</h3>
+        <h3 className={styles.title}>Dependency Management (Poetry)</h3>
         <pre className={styles.output}>{poetry.output}</pre>
       </section>
     );

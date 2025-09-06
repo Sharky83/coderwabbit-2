@@ -14,7 +14,7 @@ export function DetectSecretsResults({ detectSecrets }: DetectSecretsResultsProp
   if (detectSecrets.status === "error") {
     return (
       <section className={"container"}>
-        <h3>Secret Detection (detect-secrets)</h3>
+        <h3 className={"title"}>Secret Detection (detect-secrets)</h3>
         <ErrorMessage>
           <strong>Error running detect-secrets:</strong> {detectSecrets.error}
         </ErrorMessage>
@@ -24,7 +24,7 @@ export function DetectSecretsResults({ detectSecrets }: DetectSecretsResultsProp
   if (detectSecrets.output) {
     return (
       <section className={"container"}>
-        <h3>Secret Detection (detect-secrets)</h3>
+        <h3 className={"title"}>Secret Detection (detect-secrets)</h3>
         <pre className={"output"}>{detectSecrets.output}</pre>
       </section>
     );

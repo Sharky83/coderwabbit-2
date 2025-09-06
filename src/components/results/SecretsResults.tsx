@@ -34,7 +34,7 @@ export function SecretsResults({ detectSecrets }: SecretsResultsProps) {
   }
   return (
   <section className={styles.container}>
-      <h3>Secrets Detection (detect-secrets)</h3>
+      <h3 className={styles.title}>Secrets Detection (detect-secrets)</h3>
       {detectSecrets.error ? (
         <ErrorMessage>
           <strong>Error running detect-secrets:</strong> {detectSecrets.error}

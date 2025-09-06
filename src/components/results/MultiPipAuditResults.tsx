@@ -22,7 +22,7 @@ export function MultiPipAuditResults({ pipAudit }: MultiPipAuditResultsProps) {
     }
     return (
       <section className={styles.container}>
-        <h3>Dependency Security (PipAudit)</h3>
+        <h3 className={styles.title}>Dependency Security (PipAudit)</h3>
         <div className={styles.error}>
           <strong>Error running pip-audit:</strong> {errorMsg}
           {userHint}
