@@ -1,5 +1,6 @@
+"use client";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { useEffect } from "react";
+import React from "react";
 import styles from "./Navbar.module.css";
 // Simple GitHub SVG logo
 const GitHubLogo = () => (
@@ -15,7 +16,7 @@ export default function Navbar() {
   const avatarUrl = session?.user?.image;
 
   // Store accessToken in sessionStorage when it changes
-  useEffect(() => {
+  React.useEffect(() => {
     if (session?.accessToken) {
       sessionStorage.setItem("accessToken", session.accessToken);
     } else {

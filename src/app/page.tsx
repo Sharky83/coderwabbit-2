@@ -1,17 +1,23 @@
 
 "use client";
+import React from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
-import Navbar from "../components/Navbar";
-import RepoSelector from "../components/RepoSelector";
+// ...existing code...
+
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (session) {
+      router.replace("/dashboard");
+    }
+  }, [session, router]);
+
   return (
     <>
-      <Navbar />
-      <div style={{ width: "100%", boxSizing: "border-box", padding: "2rem 0 0 0" }}>
-        {session ? <RepoSelector /> : null}
-      </div>
       <main
         style={{
           display: "flex",
@@ -24,8 +30,20 @@ export default function Home() {
           boxSizing: "border-box",
         }}
       >
-        {/* Main content goes here */}
+        {status === "loading" ? (
+          <p>Loading...</p>
+        ) : !session ? (
+          <>
+            <h1>Welcome to CoderWabbit</h1>
+            <p>Please sign in to access your dashboard.</p>
+            <button onClick={() => signIn("github")}>Sign in with GitHub</button>
+          </>
+        ) : null}
       </main>
+      <footer style={{ textAlign: "center", padding: "1rem", color: "#888" }}>
+        &copy; {new Date().getFullYear()} CoderWabbit. All rights reserved.<br />
+        <span>Site by <a href="https://weworx.io" target="_blank" rel="noopener noreferrer">weworx.io</a></span>
+      </footer>
     </>
   );
 }
