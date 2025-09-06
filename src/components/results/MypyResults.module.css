@@ -17,11 +17,18 @@
 .output {
   background: #e6f7ff;
   color: #005580;
+  margin-top: 1rem;
+  font-size: 0.97em;
+  font-weight: 500;
+  margin-bottom: 1rem;
   padding: 1rem;
   border-radius: 6px;
-  font-size: 0.95rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+}
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: #222;
 }
 .message {
   background: #e6ffe6;

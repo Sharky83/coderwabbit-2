@@ -7,9 +7,9 @@
   margin-right: auto;
 }
 .title {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
 }
 .error {
   background: #fffbe6;
@@ -37,7 +37,7 @@
   font-weight: 500;
 }
 .output {
-  background: #e6e6ff;
+  background: none;
   color: #003366;
   padding: 1rem;
   border-radius: 6px;

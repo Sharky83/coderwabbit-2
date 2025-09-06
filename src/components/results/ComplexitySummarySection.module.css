@@ -7,7 +7,10 @@
   margin-right: auto;
 }
 .title {
-  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: #222;
 }
 .error {
   background: #fffbe6;

@@ -7,15 +7,10 @@
   margin-right: auto;
 }
 .title {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
   color: #222;
-}
-.title {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
 }
  .error {
   background: #fffbe6;
