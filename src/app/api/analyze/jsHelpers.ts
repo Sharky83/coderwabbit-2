@@ -22,6 +22,8 @@ export type ComplexitySummary = {
     line: number;
   }>;
   error?: string;
+  status?: string;
+  output?: string;
 };
 export type DuplicationSummary = {
   totalClones?: number;
@@ -32,6 +34,8 @@ export type DuplicationSummary = {
     sources: Array<{ file: string; start: number; end: number }>;
   }>;
   error?: string;
+  status?: string;
+  output?: string;
 };
 
 export async function installNpmDependencies(tempDir: string): Promise<{ error?: Error | string }> {

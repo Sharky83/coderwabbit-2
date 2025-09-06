@@ -10,6 +10,185 @@ type Repo = {
 };
 
 export default function RepoSelector() {
+  // Add Complexity summary results display
+  interface ComplexitySummaryProps {
+    complexitySummary: {
+      error?: string | { message: string };
+      info?: string;
+      totalFiles?: number;
+      mostComplexFiles?: Array<{ file: string; cyclomatic: number; maintainability: number }>;
+      mostComplexFunctions?: Array<{ file: string; name: string; cyclomatic: number; line: number }>;
+      skippedFiles?: string[];
+      status?: string;
+      output?: string;
+    } | null;
+  }
+  function ComplexitySummarySection({ complexitySummary }: ComplexitySummaryProps) {
+    if (!complexitySummary) return null;
+    return (
+      <section style={{ marginTop: '2rem' }}>
+        <h3 style={{ marginBottom: '1rem' }}>Code Complexity Summary</h3>
+        {/* Summary content follows title */}
+        {complexitySummary.error ? (
+          <div style={{ color: 'orange', marginBottom: '1rem' }}>
+            <strong>Error in complexity analysis:</strong> {typeof complexitySummary.error === 'string' ? complexitySummary.error : complexitySummary.error.message}
+          </div>
+        ) : null}
+        {complexitySummary.info && (
+          <div style={{ color: '#005580', marginBottom: '1rem' }}>{complexitySummary.info}</div>
+        )}
+        {typeof complexitySummary.totalFiles === 'number' && (
+          <div>Total files analyzed: {complexitySummary.totalFiles}</div>
+        )}
+        {Array.isArray(complexitySummary.mostComplexFiles) && complexitySummary.mostComplexFiles.length > 0 && (
+          <div style={{ marginTop: '1rem' }}>
+            <strong>Most Complex Files:</strong>
+            <ul>
+              {complexitySummary.mostComplexFiles.map((file, idx) => (
+                <li key={idx}>
+                  {file.file}: Cyclomatic {file.cyclomatic}, Maintainability {file.maintainability}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {Array.isArray(complexitySummary.mostComplexFunctions) && complexitySummary.mostComplexFunctions.length > 0 && (
+          <div style={{ marginTop: '1rem' }}>
+            <strong>Most Complex Functions:</strong>
+            <ul>
+              {complexitySummary.mostComplexFunctions.map((fn, idx) => (
+                <li key={idx}>
+                  {fn.name} ({fn.file}, line {fn.line}): Cyclomatic {fn.cyclomatic}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {Array.isArray(complexitySummary.skippedFiles) && complexitySummary.skippedFiles.length > 0 && (
+          <div style={{ marginTop: '1rem', color: '#b30000' }}>
+            <strong>Skipped Files:</strong> {complexitySummary.skippedFiles.join(', ')}
+          </div>
+        )}
+        {complexitySummary.output && (
+          <pre style={{ background: '#e6f7ff', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#005580' }}>{complexitySummary.output}</pre>
+        )}
+      </section>
+    );
+  }
+  // Add Pylint linting results display
+  interface PylintResultsProps {
+    pylint: {
+      error?: string | { message: string };
+      details?: unknown;
+      output?: string;
+      message?: string;
+    } | null;
+  }
+  function PylintResults({ pylint }: PylintResultsProps) {
+    if (!pylint) return null;
+    return (
+      <section style={{ marginTop: '2rem' }}>
+        <h3>Linting (Pylint)</h3>
+        {pylint.error ? (
+          <div style={{ color: 'orange', marginBottom: '1rem' }}>
+            <strong>Error running Pylint:</strong> {typeof pylint.error === 'string' ? pylint.error : pylint.error.message}
+            {(pylint.details && (typeof pylint.details === 'object' || typeof pylint.details === 'string')) ? (
+              <pre style={{ background: '#fff3cd', padding: '0.5rem', borderRadius: '4px', fontSize: '0.85rem', marginTop: '0.5rem' }}>{JSON.stringify(pylint.details, null, 2)}</pre>
+            ) : null}
+          </div>
+        ) : null}
+        {pylint.output ? (
+          <pre style={{ background: '#f7f7ff', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#333' }}>{pylint.output}</pre>
+        ) : (!pylint.error && pylint.message ? (
+          <div style={{ color: 'green', marginTop: '1rem' }}>{pylint.message}</div>
+        ) : null)}
+      </section>
+    );
+  }
+
+  // Add PipAudit dependency security results display
+  interface PipAuditResultsProps {
+    pipAudit: {
+      error?: string | { message: string };
+      details?: unknown;
+      output?: string;
+      message?: string;
+      status?: string;
+    } | null;
+  }
+  function PipAuditResults({ pipAudit }: PipAuditResultsProps) {
+    if (!pipAudit) return null;
+    return (
+      <section style={{ marginTop: '2rem' }}>
+        <h3>Dependency Security (PipAudit)</h3>
+        {pipAudit.error ? (
+          <div style={{ color: 'orange', marginBottom: '1rem' }}>
+            <strong>Error running PipAudit:</strong> {typeof pipAudit.error === 'string' ? pipAudit.error : pipAudit.error.message}
+            {(pipAudit.details && (typeof pipAudit.details === 'object' || typeof pipAudit.details === 'string')) ? (
+              <pre style={{ background: '#fff3cd', padding: '0.5rem', borderRadius: '4px', fontSize: '0.85rem', marginTop: '0.5rem' }}>{JSON.stringify(pipAudit.details, null, 2)}</pre>
+            ) : null}
+          </div>
+        ) : null}
+        {pipAudit.output ? (
+          <pre style={{ background: '#e6ffe6', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#005500' }}>{pipAudit.output}</pre>
+        ) : (!pipAudit.error && pipAudit.message ? (
+          <div style={{ color: 'green', marginTop: '1rem' }}>{pipAudit.message}</div>
+        ) : null)}
+      </section>
+    );
+  }
+
+  // Add Pytest test results display
+  interface PytestResultsProps {
+    pytest: {
+      error?: string | { message: string };
+      details?: unknown;
+      output?: string;
+      message?: string;
+      status?: string;
+    } | null;
+  }
+  function PytestResults({ pytest }: PytestResultsProps) {
+    if (!pytest) return null;
+    return (
+      <section style={{ marginTop: '2rem' }}>
+        <h3>Test Results (Pytest)</h3>
+        {pytest.error ? (
+          <div style={{ color: 'orange', marginBottom: '1rem' }}>
+            <strong>Error running Pytest:</strong> {typeof pytest.error === 'string' ? pytest.error : pytest.error.message}
+            {(pytest.details && (typeof pytest.details === 'object' || typeof pytest.details === 'string')) ? (
+              <pre style={{ background: '#fff3cd', padding: '0.5rem', borderRadius: '4px', fontSize: '0.85rem', marginTop: '0.5rem' }}>{JSON.stringify(pytest.details, null, 2)}</pre>
+            ) : null}
+          </div>
+        ) : null}
+        {pytest.output ? (
+          <pre style={{ background: '#e6e6ff', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#003366' }}>{pytest.output}</pre>
+        ) : (!pytest.error && pytest.message ? (
+          <div style={{ color: 'green', marginTop: '1rem' }}>{pytest.message}</div>
+        ) : null)}
+      </section>
+    );
+  }
+
+  // Add install errors display
+  interface InstallErrorsProps {
+    installErrors: unknown[];
+  }
+  function InstallErrors({ installErrors }: InstallErrorsProps) {
+    if (!installErrors || !Array.isArray(installErrors) || installErrors.length === 0) return null;
+    return (
+      <section style={{ marginTop: '2rem' }}>
+        <h3>Dependency Installation Errors</h3>
+        <ul>
+          {installErrors.map((err, idx) => (
+            <li key={idx} style={{ color: 'red' }}>
+              {typeof err === 'string' ? err : JSON.stringify(err, null, 2)}
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
   const { data: session } = useSession();
   const [repos, setRepos] = useState<Repo[]>([]);
   const [search, setSearch] = useState("");
@@ -223,7 +402,7 @@ export default function RepoSelector() {
             ))}
           </ul>
         ) : (!bandit.error ? (
-          <div style={{ color: 'green', marginTop: '1rem' }}>
+          <div style={{ color: 'green', marginTop: '1rem', background: '#e6ffe6', padding: '0.75rem', borderRadius: '6px', fontWeight: 500 }}>
             No security issues found by Bandit.
           </div>
         ) : null)}
@@ -396,10 +575,15 @@ export default function RepoSelector() {
               {JSON.stringify(result, null, 2)}
             </pre>
           )}
+          {result?.complexitySummary && <ComplexitySummarySection complexitySummary={result.complexitySummary as ComplexitySummaryProps['complexitySummary']} />}
           {result?.testResults?.safety && <SafetyResults safety={result.testResults.safety as SafetyResultsProps['safety']} />}
           {result?.testResults?.mypy && <MypyResults mypy={result.testResults.mypy as MypyResultsProps['mypy']} />}
           {result?.testResults?.bandit && <BanditResults bandit={result.testResults.bandit as BanditResultsProps['bandit']} />}
           {result?.testResults?.vulture && <VultureResults vulture={result.testResults.vulture as VultureResultsProps['vulture']} />}
+          {result?.testResults?.pylint && <PylintResults pylint={result.testResults.pylint as PylintResultsProps['pylint']} />}
+          {result?.testResults?.pipAudit && <PipAuditResults pipAudit={result.testResults.pipAudit as PipAuditResultsProps['pipAudit']} />}
+          {result?.testResults?.pytest && <PytestResults pytest={result.testResults.pytest as PytestResultsProps['pytest']} />}
+          {result?.testResults?.installErrors && <InstallErrors installErrors={result.testResults.installErrors as unknown[]} />}
         </>
       )}
     </div>
