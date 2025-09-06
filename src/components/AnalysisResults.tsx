@@ -27,6 +27,7 @@ export interface AnalysisResultsProps {
 
 export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, repoName, accessToken }) => {
   if (!result) return null;
+  const tempDir = result?.tempDir;
   return (
     <>
       {result?.complexitySummary && <ComplexitySummarySection complexitySummary={result.complexitySummary as ComplexitySummaryProps['complexitySummary']} />}
@@ -38,8 +39,8 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, repoNa
       {result?.testResults?.pylint && <PylintResults pylint={result.testResults.pylint} />}
       {result?.testResults?.pipAudit && <MultiPipAuditResults pipAudit={result.testResults.pipAudit} />}
       {result?.testResults?.pytest && <PytestResults pytest={result.testResults.pytest} />}
-      {Array.isArray(result?.testResults?.hypothesis) && (
-        <HypothesisResults repoName={repoName} accessToken={accessToken} />
+      {tempDir && (
+        <HypothesisResults tempDir={tempDir} accessToken={accessToken} />
       )}
       {result?.testResults?.coverage && <CoverageResults coverage={result.testResults.coverage} />}
     </>

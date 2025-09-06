@@ -43,6 +43,24 @@ def test_list_sort(lst):
 def test_sqrt_non_negative(x):
     assert math.sqrt(x) >= 0
 
+# Property-based palindrome test
+
+def is_palindrome(s: str) -> bool:
+    return s == s[::-1]
+
+@given(st.text())
+def test_palindrome_property(s):
+    # For any string, reversing twice gives the original
+    assert s == s[::-1][::-1]
+
+@given(st.text())
+def test_palindrome_detection(s):
+    # If a string is a palindrome, is_palindrome should return True
+    if s == s[::-1]:
+        assert is_palindrome(s)
+    else:
+        assert not is_palindrome(s) or s != s[::-1]
+
 if __name__ == "__main__":
     import pytest
     pytest.main([__file__])

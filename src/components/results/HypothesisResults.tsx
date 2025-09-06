@@ -3,18 +3,18 @@ import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import styles from "./HypothesisResults.module.css";
 
 export interface HypothesisResultsProps {
-  repoName: string;
+  tempDir: string;
   accessToken: string;
 }
 
-export function HypothesisResults({ repoName, accessToken }: HypothesisResultsProps) {
+export function HypothesisResults({ tempDir, accessToken }: HypothesisResultsProps) {
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchHypothesisResults() {
       try {
-        const response = await fetchWithAuth(`/api/analyze/hypothesis?repo=${encodeURIComponent(repoName)}`, accessToken, { method: 'GET' });
+        const response = await fetchWithAuth(`/api/analyze/hypothesis?tempDir=${encodeURIComponent(tempDir)}`, accessToken, { method: 'GET' });
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
@@ -24,10 +24,10 @@ export function HypothesisResults({ repoName, accessToken }: HypothesisResultsPr
         setError(err.message || 'Failed to fetch results');
       }
     }
-    if (repoName && accessToken) {
+    if (tempDir && accessToken) {
       fetchHypothesisResults();
     }
-  }, [repoName, accessToken]);
+  }, [tempDir, accessToken]);
 
   return (
     <section className={styles.container}>
