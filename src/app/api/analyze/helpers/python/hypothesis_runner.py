@@ -29,5 +29,7 @@ def run_hypothesis_tests():
         })
     return results
 
+import json
+
 if __name__ == "__main__":
-    print(run_hypothesis_tests())
+    print(json.dumps(run_hypothesis_tests()))

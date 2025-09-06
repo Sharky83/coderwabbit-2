@@ -14,13 +14,17 @@ export function HypothesisResults({ tempDir, accessToken }: HypothesisResultsPro
   useEffect(() => {
     async function fetchHypothesisResults() {
       try {
+        console.log('[HypothesisResults] Fetching:', `/api/analyze/hypothesis?tempDir=${encodeURIComponent(tempDir)}`);
         const response = await fetchWithAuth(`/api/analyze/hypothesis?tempDir=${encodeURIComponent(tempDir)}`, accessToken, { method: 'GET' });
         if (!response.ok) {
+          console.error('[HypothesisResults] Response not OK:', response.status);
           throw new Error(`Error: ${response.status}`);
         }
         const data = await response.json();
+        console.log('[HypothesisResults] Data:', data);
         setResults(data);
       } catch (err: any) {
+        console.error('[HypothesisResults] Fetch error:', err);
         setError(err.message || 'Failed to fetch results');
       }
     }

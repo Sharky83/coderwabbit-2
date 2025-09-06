@@ -146,7 +146,7 @@ export default function RepoSelector() {
                 const res = await fetch("/api/analyze", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ owner, repo, accessToken, mode: "analyse", tempDir }),
+                  body: JSON.stringify({ owner, repo, accessToken, mode: "analyse", tempDir, accountType: "premium" }),
                 });
                 const data = await res.json();
                 if (!res.ok || data.error) {

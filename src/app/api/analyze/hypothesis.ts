@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
   // Auth check
   const session = await getServerSession(authOptions);
   if (!session || !session.accessToken) {
+    console.log('[Hypothesis API] Not authenticated');
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
@@ -35,18 +36,22 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const tempDir = searchParams.get('tempDir');
   if (!tempDir) {
+    console.log('[Hypothesis API] Missing tempDir');
     return NextResponse.json({ error: 'Missing tempDir' }, { status: 400 });
   }
 
   const fs = require('fs');
   if (!fs.existsSync(tempDir)) {
+    console.log(`[Hypothesis API] Repository directory not found: ${tempDir}`);
     return NextResponse.json({ error: `Repository directory not found: ${tempDir}` }, { status: 404 });
   }
   try {
     const results = await runHypothesisTests(tempDir);
+    console.log('[Hypothesis API] Results:', results);
     return NextResponse.json(results);
   } catch (err: any) {
     logError(err);
+    console.log('[Hypothesis API] Error:', err);
     return NextResponse.json({ error: err.error || 'Failed to run Hypothesis tests', details: err.stderr || err }, { status: 500 });
   }
 }
