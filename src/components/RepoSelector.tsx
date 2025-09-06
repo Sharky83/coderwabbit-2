@@ -55,9 +55,23 @@ export default function RepoSelector() {
 
   function ComplexitySummarySection({ complexitySummary }: ComplexitySummaryProps) {
     if (!complexitySummary) return null;
+    const hasSummary = !!(
+      complexitySummary.error ||
+      complexitySummary.info ||
+      typeof complexitySummary.totalFiles === 'number' ||
+      (Array.isArray(complexitySummary.mostComplexFiles) && complexitySummary.mostComplexFiles.length > 0) ||
+      (Array.isArray(complexitySummary.mostComplexFunctions) && complexitySummary.mostComplexFunctions.length > 0) ||
+      (Array.isArray(complexitySummary.skippedFiles) && complexitySummary.skippedFiles.length > 0) ||
+      complexitySummary.output
+    );
     return (
       <section style={{ marginTop: '2rem' }}>
         <h3 style={{ marginBottom: '1rem' }}>Code Complexity Summary</h3>
+        {!hasSummary && (
+          <div style={{ background: '#e6f7ff', color: '#005580', marginBottom: '1rem', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem' }}>
+            No complexity data available for this repository.
+          </div>
+        )}
         {/* Summary content follows title */}
         {complexitySummary.error ? (
           <div style={{ color: 'orange', marginBottom: '1rem' }}>
@@ -600,11 +614,6 @@ export default function RepoSelector() {
               {JSON.stringify(detected, null, 2)}
             </pre>
           )}
-          {result && (
-            <pre style={{ background: "#f8f8f8", padding: "1rem", borderRadius: "6px", marginTop: "1rem", fontSize: "0.9rem", overflowX: "auto" }}>
-              {JSON.stringify(result, null, 2)}
-            </pre>
-          )}
           {result?.complexitySummary && <ComplexitySummarySection complexitySummary={result.complexitySummary as ComplexitySummaryProps['complexitySummary']} />}
           {result?.testResults?.detectSecrets && <SecretsResults detectSecrets={result.testResults.detectSecrets as SecretsResultsProps['detectSecrets']} />}
           {result?.testResults?.safety && <SafetyResults safety={result.testResults.safety as SafetyResultsProps['safety']} />}
@@ -615,6 +624,14 @@ export default function RepoSelector() {
           {result?.testResults?.pipAudit && <PipAuditResults pipAudit={result.testResults.pipAudit as PipAuditResultsProps['pipAudit']} />}
           {result?.testResults?.pytest && <PytestResults pytest={result.testResults.pytest as PytestResultsProps['pytest']} />}
           {result?.testResults?.installErrors && <InstallErrors installErrors={result.testResults.installErrors as unknown[]} />}
+          {result && (
+            <section style={{ marginTop: "2rem" }}>
+              <h3 style={{ marginBottom: "1rem" }}>Full Analysis Summary</h3>
+              <pre style={{ background: "#f8f8f8", padding: "1rem", borderRadius: "6px", fontSize: "0.9rem", overflowX: "auto" }}>
+                {JSON.stringify(result, null, 2)}
+              </pre>
+            </section>
+          )}
         </>
       )}
     </div>
