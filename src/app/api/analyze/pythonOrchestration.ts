@@ -39,8 +39,22 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
         testResults.pylint = await runPylint(tempDir, pyFiles);
     }
     if (hasFeature(accountType, 'python', 'pipAudit')) {
-        const depFile = require('fs').readdirSync(tempDir).find((f: string) => f.endsWith('requirements.txt') || f.endsWith('pyproject.toml'));
-        testResults.pipAudit = depFile ? await analyzePipAudit(tempDir, `${tempDir}/${depFile}`) : { status: 'error', error: 'No dependency file found.' };
+        const depFiles = require('fs').readdirSync(tempDir).filter((f: string) => f.endsWith('requirements.txt') || f.endsWith('pyproject.toml') || f.endsWith('environment.yml'));
+        if (depFiles.length === 0) {
+            testResults.pipAudit = { status: 'error', error: 'No dependency file found.' };
+        } else {
+            // Ensure pipAudit is an object for multiple results
+            testResults.pipAudit = Object.create(null);
+            for (const depFile of depFiles) {
+                // Only run pip-audit for supported file types
+                if (depFile.endsWith('requirements.txt') || depFile.endsWith('pyproject.toml')) {
+                    const auditResult = await analyzePipAudit(tempDir, `${tempDir}/${depFile}`);
+                    (testResults.pipAudit as Record<string, unknown>)[depFile] = auditResult;
+                } else {
+                    (testResults.pipAudit as Record<string, unknown>)[depFile] = { status: 'skipped', error: 'File type not supported by pip-audit.' };
+                }
+            }
+        }
     }
     if (hasFeature(accountType, 'python', 'pytest')) {
         const pythonSetup = await setupPythonEnv(tempDir);
