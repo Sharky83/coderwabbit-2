@@ -27,6 +27,15 @@
   margin-bottom: 1rem;
   font-weight: 500;
 }
+.message {
+  background: #e6ffe6;
+  color: #005500;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
 .output {
   background: #e6e6ff;
   color: #003366;

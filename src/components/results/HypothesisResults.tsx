@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
+import styles from "./HypothesisResults.module.css";
 
 export interface HypothesisResultsProps {
   repoName: string;
@@ -29,13 +30,15 @@ export function HypothesisResults({ repoName, accessToken }: HypothesisResultsPr
   }, [repoName, accessToken]);
 
   return (
-    <section>
-  <h3 className={styles.title}>Hypothesis Test Results</h3>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+    <section className={styles.container}>
+      <h3 className={styles.title}>Hypothesis Test Results</h3>
+      {error && <div className={styles.error}>{error}</div>}
       {results ? (
-        <pre style={{ background: '#e6f7ff', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#005580' }}>{JSON.stringify(results, null, 2)}</pre>
+        <div className={styles.output}>
+          <pre>{JSON.stringify(results, null, 2)}</pre>
+        </div>
       ) : (
-        <div>No results available.</div>
+        <div className={styles.message}>No results available.</div>
       )}
     </section>
   );

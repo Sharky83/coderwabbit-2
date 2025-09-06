@@ -5,15 +5,44 @@
   margin-left: auto;
   margin-right: auto;
 }
-.error {
-  color: orange;
+.title {
+  font-size: 1.15rem;
+  font-weight: 600;
   margin-bottom: 1rem;
+  color: #222;
+}
+
+.error {
+  background: #fffbe6;
+  color: #b30000;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-weight: 500;
 }
 .output {
   background: #e6f7ff;
+  color: #005580;
   padding: 1rem;
   border-radius: 6px;
   font-size: 0.95rem;
   margin-top: 1rem;
-  color: #005580;
+  margin-bottom: 1rem;
+}
+.success {
+  background: #e6ffe6;
+  color: #005500;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+.message {
+  background: #e6ffe6;
+  color: #005500;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
 }
