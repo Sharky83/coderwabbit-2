@@ -26,6 +26,16 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
             bandit: { status: 'skipped', output: 'Bandit not run.' },
             pytest: { status: 'skipped', output: 'Pytest not run.' }
         };
+    // Run coverage.py and collect report
+    try {
+        const { execSync } = require('child_process');
+        execSync(`${process.cwd()}/.venv/bin/coverage run -m pytest`, { cwd: tempDir });
+        const coverageReport = execSync(`${process.cwd()}/.venv/bin/coverage report --show-missing`, { cwd: tempDir });
+        testResults.coverage = { status: 'success', output: coverageReport.toString() };
+        execSync(`${process.cwd()}/.venv/bin/coverage html`, { cwd: tempDir });
+    } catch (e) {
+        testResults.coverage = { status: 'error', output: String(e) };
+    }
     const { runVulture, analyzeMypy, runPylint, analyzePipAudit } = await import('./pythonHelpers');
     const { scanPythonSecrets, scanTomlSecrets } = await import('./analysisHelpers');
     // Debug: Log tempDir contents after clone
@@ -128,6 +138,21 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
     }
     // Always scan for secrets
     testResults.detectSecrets = await scanPythonSecrets(tempDir);
+
+    // Run Hypothesis property-based tests
+    try {
+        const { execSync } = require('child_process');
+        const hypoResultRaw = execSync(`${process.cwd()}/.venv/bin/python src/app/api/analyze/helpers/python/hypothesis_runner.py`, { cwd: process.cwd() });
+        let hypoResult;
+        try {
+            hypoResult = JSON.parse(hypoResultRaw.toString());
+        } catch (e) {
+            hypoResult = [{ status: 'error', output: 'Could not parse Hypothesis test results.' }];
+        }
+        testResults.hypothesis = hypoResult;
+    } catch (e) {
+        testResults.hypothesis = [{ status: 'error', output: String(e) }];
+    }
     if (!hasFeature(accountType, 'python', 'pipAudit') && body.requestedStandardFeature) {
         return { error: featureErrorResponse(accountType, body.requestedStandardFeature, 'standard'), status: 403 };
     }

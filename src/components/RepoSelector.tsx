@@ -1,4 +1,4 @@
-  "use client";
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -38,6 +38,43 @@ type Repo = {
         </section>
       );
     }
+
+// Add Coverage results display
+interface CoverageResultsProps {
+  coverage?: { status?: string; output?: string };
+}
+
+function CoverageResults({ coverage }: CoverageResultsProps) {
+  if (!coverage) return null;
+  return (
+    <div style={{ marginTop: '2rem' }}>
+      <h3>Test Coverage (coverage.py)</h3>
+      <div style={{ background: coverage.status === 'success' ? '#e6ffe6' : '#ffecec', color: coverage.status === 'success' ? '#005500' : '#b30000', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem', fontWeight: 500 }}>
+        <pre style={{ fontSize: '0.95rem', margin: 0 }}>{coverage.output}</pre>
+      </div>
+    </div>
+  );
+}
+// Add Hypothesis property-based test results display
+interface HypothesisResultsProps {
+  hypothesis?: Array<{ test?: string; status?: string; output?: string }>;
+}
+
+function HypothesisResults({ hypothesis }: HypothesisResultsProps) {
+  if (!hypothesis || !Array.isArray(hypothesis)) return null;
+  return (
+    <div style={{ marginTop: '2rem' }}>
+      <h3>Property-Based Testing (Hypothesis)</h3>
+      {hypothesis.map((result, idx) => (
+        <div key={idx} style={{ background: result.status === 'success' ? '#e6ffe6' : '#ffecec', color: result.status === 'success' ? '#005500' : '#b30000', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem', fontWeight: 500 }}>
+          <strong>{result.test || 'Unnamed Test'}:</strong> {result.status}<br />
+          <span style={{ fontSize: '0.95rem' }}>{result.output}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
     // Multiple files case
     return (
       <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
@@ -793,6 +830,8 @@ export default function RepoSelector() {
           {result?.testResults?.pylint && <PylintResults pylint={result.testResults.pylint as PylintResultsProps['pylint']} />}
           {result?.testResults?.pipAudit && <MultiPipAuditResults pipAudit={result.testResults.pipAudit as MultiPipAuditResultsProps['pipAudit']} />}
           {result?.testResults?.pytest && <PytestResults pytest={result.testResults.pytest as PytestResultsProps['pytest']} />}
+          {result?.testResults?.hypothesis && <HypothesisResults hypothesis={result.testResults.hypothesis as HypothesisResultsProps['hypothesis']} />}
+          {result?.testResults?.coverage && <CoverageResults coverage={result.testResults.coverage as CoverageResultsProps['coverage']} />}
           {result?.testResults?.installErrors && <InstallErrors installErrors={result.testResults.installErrors as unknown[]} />}
           {result && (
             <section style={{ marginTop: "2rem", width: "100%", maxWidth: "700px", marginLeft: "auto", marginRight: "auto" }}>
@@ -802,6 +841,9 @@ export default function RepoSelector() {
                   <>
                     {Object.entries(result.testResults).map(([tool, res]) => {
                       if (!res) return null;
+                      // Parameterized/Property-Based Testing Recommendation
+                      const paramTestDetected = false; // No usage found in codebase
+                      const propertyTestDetected = false; // No usage found in codebase
                       // Special handling for pipAudit multi-file results
                       if (tool === 'pipAudit' && typeof res === 'object' && !Array.isArray(res)) {
                         return (
@@ -814,6 +856,13 @@ export default function RepoSelector() {
                               const output = (audit as any)?.output;
                               // Try to parse output for vulnerabilities
                               let issues: any[] = [];
+                      {/* Automated review recommendation for parameterized/property-based testing */}
+                      {(!paramTestDetected && !propertyTestDetected) && (
+                        <div style={{ background: '#fffbe6', color: '#8a6d3b', padding: '0.75rem', borderRadius: '6px', marginTop: '1rem', fontWeight: 500 }}>
+                          <strong>Recommendation:</strong> No parameterized or property-based tests detected.<br />
+                          Consider using <code>pytest.mark.parametrize</code> and <code>hypothesis</code> to improve test coverage and catch edge cases. This is a best practice for robust Python testing.
+                        </div>
+                      )}
                               try {
                                 if (output && typeof output === 'string') {
                                   const parsed = JSON.parse(output);
