@@ -35,7 +35,7 @@ export async function runPipAudit(tempDir: string, depFile: string): Promise<Pip
     reqFile = tempReqPath;
     args = ['-r', reqFile, '-f', 'json'];
   } else if (depFile.endsWith('pyproject.toml')) {
-    args = ['-f', 'toml', '-r', depFile, '-f', 'json'];
+    args = ['-r', depFile, '-f', 'json'];
   } else if (depFile.endsWith('environment.yml') || depFile.endsWith('environment.yaml')) {
     // Parse conda environment file and extract pip dependencies
     const ymlContent = fs.readFileSync(depFile, 'utf8');

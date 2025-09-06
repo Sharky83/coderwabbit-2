@@ -15,6 +15,7 @@ bandit
 detect-secrets
 pip-audit
 safety
+poetry
 
 # Utilities
 colorama==0.4.6

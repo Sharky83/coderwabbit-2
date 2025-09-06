@@ -5,4 +5,4 @@ uv venv .venv
 source .venv/bin/activate
 
 # Install all analysis tools with uv
-uv pip install detect-secrets pip-audit bandit vulture mypy pylint radon
+uv pip install detect-secrets pip-audit bandit vulture mypy pylint radon safety poetry  

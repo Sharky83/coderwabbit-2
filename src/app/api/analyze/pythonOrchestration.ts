@@ -27,7 +27,7 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
             pytest: { status: 'skipped', output: 'Pytest not run.' }
         };
     const { runVulture, analyzeMypy, runPylint, analyzePipAudit } = await import('./pythonHelpers');
-    const { scanPythonSecrets } = await import('./analysisHelpers');
+    const { scanPythonSecrets, scanTomlSecrets } = await import('./analysisHelpers');
     // Debug: Log tempDir contents after clone
     try {
         const tempFiles = require('fs').readdirSync(tempDir);
@@ -47,7 +47,7 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
     }
         // Force pip-audit to run if requirements.txt is present
         const fs = require('fs');
-        const depFiles = fs.readdirSync(tempDir).filter((f: string) => f.endsWith('requirements.txt') || f.endsWith('pyproject.toml') || f.endsWith('environment.yml'));
+    const depFiles = fs.readdirSync(tempDir).filter((f: string) => f.endsWith('requirements.txt') || f.endsWith('pyproject.toml') || f.endsWith('environment.yml'));
         if (depFiles.length === 0) {
             testResults.pipAudit = { status: 'error', error: 'No dependency file found in repo.' };
         } else {
@@ -69,13 +69,11 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
                     continue;
                 }
                 // Only run pip-audit for supported file types
-                if (depFile.endsWith('requirements.txt') || depFile.endsWith('pyproject.toml')) {
+                if (depFile.endsWith('requirements.txt')) {
                     const auditResult = await analyzePipAudit(tempDir, fullPath);
-                    // Attach file contents for debugging if no vulnerabilities found
                     if (auditResult.status === 'success' && auditResult.output && auditResult.output.trim() === 'No vulnerabilities found.') {
                         (auditResult as any).fileContents = fileContents;
                     }
-                    // If output is empty or not valid JSON, log for debugging
                     try {
                         if (auditResult.output && auditResult.output.trim() && auditResult.output.trim() !== 'No vulnerabilities found.') {
                             JSON.parse(auditResult.output);
@@ -84,6 +82,35 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
                         auditResult.error = `pip-audit output not valid JSON: ${e}`;
                     }
                     (testResults.pipAudit as Record<string, unknown>)[depFile] = auditResult;
+                } else if (depFile.endsWith('pyproject.toml')) {
+                    // Poetry export to requirements.txt
+                    const exportedReqPath = `${tempDir}/requirements_exported.txt`;
+                    const { execSync } = require('child_process');
+                    let poetryError = null;
+                    try {
+                        execSync(`/Users/lexi/.local/bin/poetry export -f requirements.txt --output ${exportedReqPath} --without-hashes`, { cwd: tempDir });
+                    } catch (e) {
+                        poetryError = typeof e === 'object' && e !== null && 'message' in e ? (e as any).message : String(e);
+                    }
+                    if (poetryError) {
+                        (testResults.pipAudit as Record<string, unknown>)[depFile] = { status: 'error', error: `Poetry export failed: ${poetryError}` };
+                    } else {
+                        // Run pip-audit on exported requirements
+                        const auditResult = await analyzePipAudit(tempDir, exportedReqPath);
+                        if (auditResult.status === 'success' && auditResult.output && auditResult.output.trim() === 'No vulnerabilities found.') {
+                            (auditResult as any).fileContents = fs.readFileSync(exportedReqPath, 'utf8');
+                        }
+                        try {
+                            if (auditResult.output && auditResult.output.trim() && auditResult.output.trim() !== 'No vulnerabilities found.') {
+                                JSON.parse(auditResult.output);
+                            }
+                        } catch (e) {
+                            auditResult.error = `pip-audit output not valid JSON: ${e}`;
+                        }
+                        (testResults.pipAudit as Record<string, unknown>)[depFile] = auditResult;
+                    }
+                    // Also scan for secrets in pyproject.toml
+                    testResults.tomlSecrets = await scanTomlSecrets(fullPath);
                 } else {
                     (testResults.pipAudit as Record<string, unknown>)[depFile] = { status: 'skipped', error: 'File type not supported by pip-audit.' };
                 }

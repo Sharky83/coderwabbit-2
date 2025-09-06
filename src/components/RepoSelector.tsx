@@ -17,11 +17,23 @@ type Repo = {
     if (!pipAudit) return null;
     // Single error case
     if ('status' in pipAudit && pipAudit.status === 'error') {
+      let errorMsg = typeof pipAudit.error === 'string' ? pipAudit.error : '';
+      let userHint = null;
+      if (errorMsg.includes("invalid OutputFormatChoice value")) {
+        userHint = (
+          <div style={{ color: '#b30000', marginTop: '0.5rem', fontSize: '0.97em' }}>
+            <strong>Explanation:</strong> Pip-audit does not support the requested output format (e.g., 'toml').<br />
+            Please use a supported format such as 'json', 'cyclonedx', or 'table'.<br />
+            <span style={{ color: '#555' }}>See <a href="https://github.com/pypa/pip-audit#output-formats" target="_blank" rel="noopener noreferrer">pip-audit documentation</a> for details.</span>
+          </div>
+        );
+      }
       return (
         <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
           <h3>Dependency Security (PipAudit)</h3>
           <div style={{ color: 'orange', marginBottom: '1rem' }}>
-            <strong>Error running pip-audit:</strong> {typeof pipAudit.error === 'string' ? pipAudit.error : ''}
+            <strong>Error running pip-audit:</strong> {errorMsg}
+            {userHint}
           </div>
         </section>
       );
@@ -142,8 +154,28 @@ export default function RepoSelector() {
   }
   function SecretsResults({ detectSecrets }: SecretsResultsProps) {
     if (!detectSecrets) return null;
+    let secrets: Array<{ filename: string; type: string; line_number: number; hashed_secret: string }> = [];
+    if (detectSecrets.output) {
+      try {
+        const parsed = JSON.parse(detectSecrets.output);
+        if (parsed && parsed.results) {
+          Object.entries(parsed.results).forEach(([filename, items]) => {
+            if (Array.isArray(items)) {
+              items.forEach((item: any) => {
+                secrets.push({
+                  filename,
+                  type: item.type,
+                  line_number: item.line_number,
+                  hashed_secret: item.hashed_secret
+                });
+              });
+            }
+          });
+        }
+      } catch {}
+    }
     return (
-  <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
+      <section style={{ marginTop: '2rem', width: '100%', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
         <h3>Secrets Detection (detect-secrets)</h3>
         {detectSecrets.error ? (
           <div style={{
@@ -163,11 +195,22 @@ export default function RepoSelector() {
             <strong>Error running detect-secrets:</strong> {detectSecrets.error}
           </div>
         ) : null}
-        {detectSecrets.output ? (
-          <pre style={{ background: '#fffbe6', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', marginTop: '1rem', color: '#665c00', width: '100%', wordBreak: 'break-word', whiteSpace: 'pre-line' }}>{detectSecrets.output}</pre>
+        {secrets.length > 0 ? (
+          <ul style={{ color: '#b30000', margin: '1rem 0 0 1rem' }}>
+            {secrets.map((secret, idx) => (
+              <li key={idx} style={{ marginBottom: '1rem', background: '#fffbe6', padding: '0.75rem', borderRadius: '6px' }}>
+                <div><strong>File:</strong> {secret.filename}</div>
+                <div><strong>Type:</strong> {secret.type}</div>
+                <div><strong>Line Number:</strong> {secret.line_number}</div>
+                <div><strong>Secret Hash:</strong> {secret.hashed_secret}</div>
+              </li>
+            ))}
+          </ul>
         ) : (!detectSecrets.error ? (
           <div style={{ color: 'green', marginTop: '1rem' }}>
-            No secrets found by detect-secrets.
+            <div style={{ background: '#e6ffe6', color: '#005500', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem', fontWeight: 500 }}>
+              No secrets found by detect-secrets.
+            </div>
           </div>
         ) : null)}
       </section>

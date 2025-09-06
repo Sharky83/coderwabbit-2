@@ -1,3 +1,5 @@
+import { execFile } from 'child_process';
+
 import { exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
@@ -17,6 +19,29 @@ export function cleanupTempDir(tempDir: string, delayMs: number = 5000): void {
   setTimeout(() => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }, delayMs);
+}
+
+
+// Helper: Scan TOML files for secrets using scan_toml_secrets.py
+export async function scanTomlSecrets(tomlFilePath: string): Promise<{ status: string; secrets: Array<{ key: string; value: string }> }> {
+  return new Promise((resolve) => {
+    const scriptPath = path.join(process.cwd(), 'src/app/api/analyze/helpers/python/scan_toml_secrets.py');
+    execFile('python', [scriptPath, tomlFilePath], (error, stdout, stderr) => {
+      if (error) {
+        resolve({ status: 'error', secrets: [{ key: 'error', value: error.message }] });
+        return;
+      }
+      const lines = stdout.split('\n').filter(Boolean);
+      const secrets = lines
+        .filter(line => line.startsWith('Secret found:'))
+        .map(line => {
+          const match = line.match(/Secret found: (.+) = (.+)/);
+          return match ? { key: match[1], value: match[2] } : null;
+        })
+        .filter(Boolean) as Array<{ key: string; value: string }>;
+      resolve({ status: 'success', secrets });
+    });
+  });
 }
 
 // Helper: Analyze Python complexity with radon
@@ -72,31 +97,7 @@ export async function installNpmDependencies(tempDir: string): Promise<{ error?:
 // Helper: Scan for secrets using detect-secrets
 export async function scanPythonSecrets(tempDir: string): Promise<{ status: string; output: string }> {
   try {
-    const plugins = [
-      'AWSKeyDetector',
-      'AzureStorageKeyDetector',
-      'BasicAuthDetector',
-      'CloudantDetector',
-      'CreditCardDetector',
-      'DiscordBotTokenDetector',
-      'GCPServiceAccountKeyDetector',
-      'GenericCredentialDetector',
-      'GithubTokenDetector',
-      'GoogleApiKeyDetector',
-      'HerokuDetector',
-      'IBMCloudIamDetector',
-      'IbmCosHmacDetector',
-      'JWTKeyDetector',
-      'MailchimpDetector',
-      'PrivateKeyDetector',
-      'SlackDetector',
-      'SoftlayerDetector',
-      'SquareAccessTokenDetector',
-      'StripeDetector',
-      'TwilioKeyDetector'
-    ];
-    const pluginArgs = plugins.map(p => `--plugin ${p}`).join(' ');
-    const cmd = `${process.cwd()}/.venv/bin/detect-secrets scan --all-files ${pluginArgs} --exclude .venv --exclude node_modules --exclude .next --exclude dist --exclude public --exclude repo-python-test --json`;
+  const cmd = `${process.cwd()}/.venv/bin/detect-secrets scan --all-files --force-use-all-plugins --exclude-files .venv --exclude-files node_modules --exclude-files .next --exclude-files dist --exclude-files public --exclude-files repo-python-test --exclude-files .cache --exclude-files .mypy_cache --exclude-files .pytest_cache --exclude-files .poetry --exclude-files .tox --exclude-files .eggs --exclude-files __pycache__ --exclude-files .git`;
     const result = await safeExec(cmd, { cwd: tempDir });
     if (result.error) {
       if (String(result.error).includes('No such file or directory') || String(result.error).includes('cannot execute')) {
@@ -104,8 +105,8 @@ export async function scanPythonSecrets(tempDir: string): Promise<{ status: stri
       }
       return { status: 'error', output: String(result.error) };
     }
-    if (!result.stdout || result.stdout.trim() === '' || result.stdout.trim() === '{}') {
-      return { status: 'success', output: 'No secrets detected in this repository.' };
+    if (!result.stdout || result.stdout.trim() === '' || result.stdout.trim() === '{}' || (JSON.parse(result.stdout).results && JSON.parse(result.stdout).results.length === 0)) {
+      return { status: 'success', output: '' };
     }
     return { status: 'success', output: result.stdout };
   } catch (err) {
