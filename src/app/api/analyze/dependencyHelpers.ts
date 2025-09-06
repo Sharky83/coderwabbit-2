@@ -15,14 +15,16 @@ export function detectLanguagesAndDependencies(tempDir: string) {
   };
   const allFiles = walkSync(tempDir);
   const detectedLanguages: string[] = [];
-  // Only detect 'python' if .py files exist
-  if (allFiles.some(f => f.endsWith('.py'))) detectedLanguages.push('python');
+  // Always detect 'python' if any .py file exists
+  if (allFiles.some(f => f.endsWith('.py'))) {
+    detectedLanguages.unshift('python');
+  }
   if (allFiles.some(f => f.endsWith('.js'))) detectedLanguages.push('javascript');
   if (allFiles.some(f => f.endsWith('.ts'))) detectedLanguages.push('typescript');
   if (allFiles.some(f => f.endsWith('.php'))) detectedLanguages.push('php');
   if (allFiles.some(f => f.endsWith('.html'))) detectedLanguages.push('html');
   if (allFiles.some(f => f.endsWith('.css'))) detectedLanguages.push('css');
-  let language = detectedLanguages[0] || 'unknown';
+  let language = detectedLanguages.length > 0 ? detectedLanguages[0] : 'unknown';
   let dependencies: string[] = [];
   // Always report dependency files for security checks
   if (allFiles.some(f => f.endsWith('requirements.txt'))) dependencies.push('requirements.txt');

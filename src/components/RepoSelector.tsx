@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -8,6 +8,45 @@ type Repo = {
   name: string;
   full_name: string;
 };
+  
+  // Add multi-file PipAudit results display
+  interface MultiPipAuditResultsProps {
+    pipAudit?: Record<string, { status?: string; output?: string; error?: string }> | { status?: string; error?: string } | null;
+  }
+  function MultiPipAuditResults({ pipAudit }: MultiPipAuditResultsProps) {
+    if (!pipAudit) return null;
+    // Single error case
+    if ('status' in pipAudit && pipAudit.status === 'error') {
+      return (
+        <section style={{ marginTop: '2rem' }}>
+          <h3>Dependency Security (PipAudit)</h3>
+          <div style={{ color: 'orange', marginBottom: '1rem' }}>
+            <strong>Error running pip-audit:</strong> {typeof pipAudit.error === 'string' ? pipAudit.error : ''}
+          </div>
+        </section>
+      );
+    }
+    // Multiple files case
+    return (
+      <section style={{ marginTop: '2rem' }}>
+        <h3>Dependency Security (PipAudit)</h3>
+        {Object.entries(pipAudit).map(([file, result], idx) => (
+          <div key={file} style={{ marginBottom: '1.5rem' }}>
+            <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.5rem' }}>{file}</div>
+            {result.status === 'error' || result.status === 'skipped' ? (
+              <div style={{ color: 'orange', marginBottom: '0.5rem' }}>
+                <strong>{result.status === 'skipped' ? 'Skipped:' : 'Error:'}</strong> {result.error}
+              </div>
+            ) : null}
+            {result.output ? (
+              <pre style={{ background: '#e6ffe6', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', color: '#005500' }}>{result.output}</pre>
+            ) : null}
+          </div>
+        ))}
+      </section>
+    );
+  }
+
 
 export default function RepoSelector() {
   // Add Complexity summary results display
@@ -621,7 +660,7 @@ export default function RepoSelector() {
           {result?.testResults?.bandit && <BanditResults bandit={result.testResults.bandit as BanditResultsProps['bandit']} />}
           {result?.testResults?.vulture && <VultureResults vulture={result.testResults.vulture as VultureResultsProps['vulture']} />}
           {result?.testResults?.pylint && <PylintResults pylint={result.testResults.pylint as PylintResultsProps['pylint']} />}
-          {result?.testResults?.pipAudit && <PipAuditResults pipAudit={result.testResults.pipAudit as PipAuditResultsProps['pipAudit']} />}
+          {result?.testResults?.pipAudit && <MultiPipAuditResults pipAudit={result.testResults.pipAudit as MultiPipAuditResultsProps['pipAudit']} />}
           {result?.testResults?.pytest && <PytestResults pytest={result.testResults.pytest as PytestResultsProps['pytest']} />}
           {result?.testResults?.installErrors && <InstallErrors installErrors={result.testResults.installErrors as unknown[]} />}
           {result && (
