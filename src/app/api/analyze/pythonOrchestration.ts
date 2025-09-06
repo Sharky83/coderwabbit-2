@@ -17,23 +17,29 @@ export interface PythonTestResults {
     [key: string]: unknown;
 }
 export async function runPythonAnalysis(accountType: AccountType, tempDir: string, body: PythonAnalysisBody): Promise<{ testResults: PythonTestResults } | { error: unknown; status: number }> {
-        let testResults: PythonTestResults = {
-            vulture: { status: 'skipped', output: 'Vulture not run.' },
-            mypy: { status: 'skipped', output: 'Mypy not run.' },
-            pylint: { status: 'skipped', output: 'Pylint not run.' },
-            pipAudit: { status: 'skipped', output: 'PipAudit not run.' },
-            installErrors: [],
-            bandit: { status: 'skipped', output: 'Bandit not run.' },
-            pytest: { status: 'skipped', output: 'Pytest not run.' }
-        };
+    let testResults: PythonTestResults = {
+        vulture: { status: 'skipped', output: 'Vulture not run.' },
+        mypy: { status: 'skipped', output: 'Mypy not run.' },
+        pylint: { status: 'skipped', output: 'Pylint not run.' },
+        pipAudit: { status: 'skipped', output: 'PipAudit not run.' },
+        installErrors: [],
+        bandit: { status: 'skipped', output: 'Bandit not run.' },
+        pytest: { status: 'skipped', output: 'Pytest not run.' }
+    };
     // Run coverage.py and collect report
     try {
         const { execSync } = require('child_process');
-        execSync(`${process.cwd()}/.venv/bin/coverage run -m pytest`, { cwd: tempDir });
+        const fs = require('fs');
+        const files = fs.readdirSync(tempDir);
+        console.log('DEBUG coverage tempDir contents:', files);
+        const coverageCmd = `${process.cwd()}/.venv/bin/coverage run -m pytest`;
+        console.log('DEBUG coverage command:', coverageCmd, 'cwd:', tempDir);
+        execSync(coverageCmd, { cwd: tempDir });
         const coverageReport = execSync(`${process.cwd()}/.venv/bin/coverage report --show-missing`, { cwd: tempDir });
         testResults.coverage = { status: 'success', output: coverageReport.toString() };
         execSync(`${process.cwd()}/.venv/bin/coverage html`, { cwd: tempDir });
     } catch (e) {
+        console.log('DEBUG coverage error:', e);
         testResults.coverage = { status: 'error', output: String(e) };
     }
     const { runVulture, analyzeMypy, runPylint, analyzePipAudit } = await import('./pythonHelpers');
@@ -133,8 +139,14 @@ export async function runPythonAnalysis(accountType: AccountType, tempDir: strin
         }
         testResults.pytest = await runPytest(pythonSetup.pythonBin, tempDir);
     }
+    console.log('DEBUG Bandit feature check:', { accountType, hasFeature: hasFeature(accountType, 'python', 'bandit') });
     if (hasFeature(accountType, 'python', 'bandit')) {
-        testResults.bandit = await runBandit(tempDir, pyFiles);
+        console.log('DEBUG Bandit invocation:', { tempDir, pyFiles });
+        const banditResult = await runBandit(tempDir, pyFiles);
+        console.log('DEBUG Bandit result:', banditResult);
+        testResults.bandit = banditResult;
+    } else {
+        console.log('DEBUG Bandit NOT RUN: Feature not enabled for accountType', accountType);
     }
     // Always scan for secrets
     testResults.detectSecrets = await scanPythonSecrets(tempDir);
