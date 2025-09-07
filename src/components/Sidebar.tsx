@@ -19,20 +19,9 @@ export default function Sidebar({ onNav, showProjectsLink }: SidebarProps) {
       <hr style={{ margin: "0.5rem 0 1.5rem 0" }} />
       <nav>
         <ul style={{ marginBottom: "1.5rem" }}>
-          <li>
-            <a href="/projects">Projects</a>
-          </li>
-          <li><a href="/repositories">Repositories</a></li>
           <li><a href="/dashboard">Dashboard</a></li>
-          <li>
-            <a
-              href="#"
-              onClick={e => {
-                e.preventDefault();
-                if (onNav) onNav("integrations");
-              }}
-            >Integrations</a>
-          </li>
+          <li><a href="/repositories">Repositories</a></li>
+          <li><a href="/integrations">Integrations</a></li>
           <li><a href="/reports">Reports</a></li>
           <li><a href="/learning">Learning</a></li>
           <li><a href="/settings">Settings</a></li>
