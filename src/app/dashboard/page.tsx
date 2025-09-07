@@ -29,7 +29,7 @@ const DashboardPage: React.FC = () => {
       <div className={styles.contentWrapper}>
         <AppNavbar userEmail={userEmail} page="Dashboard" />
         <main className={styles.main}>
-          <h2 className={styles.title}>Dashboard</h2>
+          <span className={styles.tasksBadge}>Dashboard</span>
           <div>
             {/* Banner Section */}
             <div className={styles.bannerCard}>
@@ -41,7 +41,7 @@ const DashboardPage: React.FC = () => {
             {/* Top Pending Tasks Table */}
             <section className={styles.tasksSection}>
               <div className={styles.tasksTitleRow}>
-                <span className={styles.tasksBadge}>Top pending tasks</span>
+                <span style={{ color: '#222', fontWeight: 700, fontSize: '1.08rem', marginRight: '0.7rem', marginBottom: '0.5rem', letterSpacing: '0.01em' }}>Top pending tasks</span>
                 <span className={styles.tooltipIcon} title="This is a dummy tooltip for Top pending tasks.">?</span>
               </div>
               <div className={styles.tasksTableWrapper}>
@@ -94,7 +94,7 @@ const DashboardPage: React.FC = () => {
             {/* Top Vulnerable Projects Table */}
             <section className={styles.tasksSection}>
               <div className={styles.tasksTitleRow}>
-                <h2 className={styles.tasksTitle} style={{ marginRight: '0.5rem' }}>Top vulnerable projects</h2>
+                <span className={styles.tasksBadge}>Top vulnerable projects</span>
                 <span className={styles.tooltipIcon} title="This is a dummy tooltip for Top vulnerable projects.">?</span>
               </div>
               <div className={styles.tasksTableWrapper}>
