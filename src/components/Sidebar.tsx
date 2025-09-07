@@ -19,7 +19,9 @@ export default function Sidebar({ onNav, showProjectsLink }: SidebarProps) {
       <hr style={{ margin: "0.5rem 0 1.5rem 0" }} />
       <nav>
         <ul style={{ marginBottom: "1.5rem" }}>
-          {showProjectsLink && <li><a href="/projects">Projects</a></li>}
+          <li>
+            <a href="/projects">Projects</a>
+          </li>
           <li><a href="/repositories">Repositories</a></li>
           <li><a href="/dashboard">Dashboard</a></li>
           <li>
