@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { signOut } from "next-auth/react";
 import styles from "./Sidebar.module.css";
 import { useSession } from "next-auth/react";
 
@@ -20,6 +21,7 @@ export default function Sidebar({ onNav, showProjectsLink }: SidebarProps) {
       <nav>
         <ul style={{ marginBottom: "1.5rem" }}>
           <li><a href="/dashboard">Dashboard</a></li>
+          <li><a href="/projects">Projects</a></li>
           <li><a href="/repositories">Repositories</a></li>
           <li><a href="/integrations">Integrations</a></li>
           <li><a href="/reports">Reports</a></li>
@@ -31,6 +33,15 @@ export default function Sidebar({ onNav, showProjectsLink }: SidebarProps) {
         <ul>
           <li><a href="/docs">Docs</a></li>
           <li><a href="/support">Support</a></li>
+          <li>
+            <a
+              href="#"
+              onClick={e => {
+                e.preventDefault();
+                signOut({ callbackUrl: "/" });
+              }}
+            >Logout</a>
+          </li>
         </ul>
       </nav>
     </aside>

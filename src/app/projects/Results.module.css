@@ -1,5 +1,5 @@
-/* Projects.module.css - Styles for the Projects page */
-.projectsContainer {
+/* Results.module.css - Styles for the Results page */
+.resultsContainer {
   display: flex;
   min-height: 100vh;
   background: #f8fafc;
@@ -23,11 +23,11 @@
   margin-bottom: 24px;
 }
 
-.projectsList {
+.resultsList {
   margin-top: 16px;
 }
 
-.projectsItem {
+.resultsItem {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);

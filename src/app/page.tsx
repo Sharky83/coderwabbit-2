@@ -2,8 +2,7 @@
 "use client";
 import React from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
-// ...existing code...
-
+import styles from "./Home.module.css";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -18,25 +17,14 @@ export default function Home() {
 
   return (
     <>
-      <main
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "70vh",
-          padding: "1rem",
-          width: "100%",
-          boxSizing: "border-box",
-        }}
-      >
+      <main className={styles.homeContainer}>
         {status === "loading" ? (
           <p>Loading...</p>
         ) : !session ? (
           <>
-            <h1>Welcome to CoderWabbit</h1>
-            <p>Please sign in to access your dashboard.</p>
-            <button onClick={() => signIn("github")}>Sign in with GitHub</button>
+            <h1 className={styles.title}>Welcome to CoderWabbit</h1>
+            <p className={styles.subtitle}>Please sign in to access your dashboard.</p>
+            <button className={styles.signInBtn} onClick={() => signIn("github")}>Sign in with GitHub</button>
           </>
         ) : null}
       </main>
